@@ -22,6 +22,10 @@ class ODPJuicer:
     def __init__(self):
         self.slides = []
         self.doc = None
+        self.currentSlide = None
+
+    def debug(self,node):
+        print("node ", node)
 
     def getTextFromNode(self,node):
         res = []
@@ -83,8 +87,14 @@ class ODPJuicer:
     def handleDocument(self,dom):
         pages = dom.getElementsByTagName("draw:page")
         for page in pages:
+            # set new current slide
+            self.currentSlide = Slide()
+            # parse
             self.handlePage(page)
-        
+            # store
+            self.slides.append(self.currentSlide)
+
+        # debug
         print(self.slides)
 
     def open(self,fname):
