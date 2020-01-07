@@ -16,7 +16,10 @@ class Slide:
         self.text = []
         self.notes = []
         self.media = []
-        pass
+        self.data = [{'p' : 'dadadad'},{'l' : ['blah', 'more']  }]
+
+    def __str__(self):
+        return " ".join([self.name," ".join(self.text)])
 
 class ODPJuicer:
     def __init__(self):
@@ -28,11 +31,9 @@ class ODPJuicer:
         print("node ", node)
 
     def getTextFromNode(self,node):
-        res = []
         for c in node.childNodes:
             if c.nodeType == c.TEXT_NODE:
-                res.append(c.data)
-        return res
+                self.currentSlide.text + c.data
 
     def hasAttributeWithValue(self,node,name,value):
         for attribute_name,attribute_value in node.attributes.items():
@@ -41,17 +42,21 @@ class ODPJuicer:
         return False
 
     def handleTextSpan(self,node):
-        res = self.getTextFromNode(node)
-        print('span ',res)
+        self.getTextFromNode(node)
         pass
 
     def handleTextParagraph(self,node):
         # iterate over textspans
-        res = self.getTextFromNode(node)
-        print('p',res)
-        return res
+        self.getTextFromNode(node)
 
     def handleTextListItem(self,node):
+        for c in node.childNodes:
+            if c.tagName == 'text:p':
+                self.handleTextParagraph(c)
+            if c.tagName == 'text:list':
+                self.handleTextList(c)
+    
+    def handleTextBox(self,node):
         for c in node.childNodes:
             if c.tagName == 'text:p':
                 self.handleTextParagraph(c)
@@ -62,13 +67,6 @@ class ODPJuicer:
         for c in node.childNodes:
             if c.tagName == 'text:list-item':
                 self.handleTextListItem(c)
-
-    def handleTextBox(self,node):
-        for c in node.childNodes:
-            if c.tagName == 'text:p':
-                self.handleTextParagraph(c)
-            if c.tagName == 'text:list':
-                self.handleTextList(c)
 
     def handleFrame(self,node):
         for c in node.childNodes:
@@ -99,17 +97,26 @@ class ODPJuicer:
         for c in node.childNodes:
             try:
                 tag_functions[c.tagName](c)
+                print('handled',c.tagName)
             except:
-                print('not handled:',c.tagName)
+                try:
+                    print('not handled:',c.tagName)
+                except:
+                    self.currentSlide.text.append(c.data)
+
                 self.handleNode(c)
 
     def handleDocument(self,dom):
         # we only need the pages
         pages = dom.getElementsByTagName("draw:page")
         for page in pages:
+            self.currentSlide = Slide()
             self.handleNode(page)
+            self.slides.append(self.currentSlide)
+
         # debug
-        print(self.slides)
+        for slide in self.slides:
+            print(slide)
 
     def open(self,fname):
         with zipfile.ZipFile(fname) as odp:
