@@ -76,24 +76,38 @@ class ODPJuicer:
                 self.handleTextBox(c)
 
     def handlePage(self,node):
+        # set new current slide
+        self.currentSlide = Slide()
+        self.currentSlide.name = node.attributes['draw:name']
+        # parse
+        self.handleNode(node)
+        # store
+        self.slides.append(self.currentSlide)
+
+    
+    def handleText(self,node):
+        pass
+
+    def handleNode(self,node):
+
+        tag_functions = {
+                #'draw:text-box' : self.handleTextBox,
+                'draw:page' : self.handlePage,
+                'text:p' : self.getTextFromNode
+                }
+
         for c in node.childNodes:
-            if c.tagName == 'draw:text-box':
-                self.handleTextBox(c)
-            if c.tagName == 'draw:frame' and self.hasAttributeWithValue(c,'presentation:class','outline'):
-                self.handleFrame(c)
-        # for text_box in node.getElementsByTagName('draw:text-box'):
-            # self.handleTextBox(text_box)
+            try:
+                tag_functions[c.tagName](c)
+            except:
+                print('not handled:',c.tagName)
+                self.handleNode(c)
 
     def handleDocument(self,dom):
+        # we only need the pages
         pages = dom.getElementsByTagName("draw:page")
         for page in pages:
-            # set new current slide
-            self.currentSlide = Slide()
-            # parse
-            self.handlePage(page)
-            # store
-            self.slides.append(self.currentSlide)
-
+            self.handleNode(page)
         # debug
         print(self.slides)
 
