@@ -8,6 +8,8 @@
 import os
 import zipfile
 import argparse
+from enum import Enum
+
 import xml.dom.minidom as dom
 
 
@@ -40,27 +42,26 @@ class Slide:
     def __str__(self):
         return self.generateMarkdown()
 
+class Scope(Enum):
+    NONE = 0
+    TITLE = 1
+    OUTLINE = 2
+    NOTES = 3
+
+
 class ODPJuicer:
     def __init__(self):
         self.slides = []
         self.doc = None
         self.currentSlide = None
-        self.currentText = []
+        self.currentText = ""
+        self.currentDepth = 0
+        self.currentScope = Scope.NONE
 
     def getTextFromNode(self,node):
-        
-        if node.nodeType == node.TEXT_NODE:
-            self.currentText.append(node.data)
-            # self.currentSlide.text + node.data
-            # print('text: ',node.data,node.parentNode.tagName)
-            # for k,v in node.parentNode.attributes.items():
-                # print("\t{0}:{1}".format(k,v))
-
-
-    # def getTextFromNode(self,node):
-    #     for c in node.childNodes:
-    #         if c.nodeType == c.TEXT_NODE:
-    #             self.currentSlide.text + c.data
+        if node.nodeType == node.TEXT_NODE and len(str(node.data)) > 0:
+            return node.data
+        return None
 
     def hasAttributeWithValue(self,node,name,value):
         for attribute_name,attribute_value in node.attributes.items():
@@ -71,42 +72,6 @@ class ODPJuicer:
     def debugNode(self,node):
         print('node ', node.tagName)
 
-    # def handleTextSpan(self,node):
-    #     self.getTextFromNode(node)
-    #     pass
-
-    # def handleTextParagraph(self,node):
-    #     # iterate over textspans
-    #     self.getTextFromNode(node)
-
-    # def handleTextListItem(self,node):
-    #     for c in node.childNodes:
-    #         self.debugNode(c)
-    #         if c.tagName == 'text:p':
-    #             self.handleTextParagraph(c)
-    #         elif c.tagName == 'text:list':
-    #             self.handleTextList(c)
-    
-    # def handleTextBox(self,node):
-    #     for c in node.childNodes:
-    #         if c.tagName == 'text:p':
-    #             self.handleTextParagraph(c)
-    #         if c.tagName == 'text:list':
-    #             self.handleTextList(c)
-
-    # def handleTextList(self,node):
-    #     self.currentSlide.text.append([])
-    #     print(self.currentSlide.text)
-
-        # for c in node.childNodes:
-        #     if c.tagName == 'text:list-item':
-        #         self.handleTextListItem(c)
-
-    def handleFrame(self,node):
-        for c in node.childNodes:
-            if c.tagName == 'draw:text-box':
-                self.handleTextBox(c)
-
     def handlePage(self,node):
         # set new current slide
         self.currentSlide = Slide()
@@ -116,44 +81,38 @@ class ODPJuicer:
         # store
         self.slides.append(self.currentSlide)
 
-    
-    def handleText(self,node):
-        pass
-
     def handleNode(self,node):
-    
 
-        # if node.attributes['draw:name']:
-            # print('Name!')
-        self.getTextFromNode(node)
+        if self.hasAttributeWithValue(node,"presentation:class","title"):
+            self.currentScope = Scope.TITLE
+        elif self.hasAttributeWithValue(node,"presentation:class","outline"):
+            self.currentScope = Scope.OUTLINE
+        else:
+            print("Unhandled Scope!")
 
-        tag_functions = {
-                #'draw:text-box' : self.handleTextBox,
-                # 'text:list' : self.handleTextList,
-                'draw:page' : self.handlePage
-                # 'text:p' : self.getTextFromNode
-                }
+
+        t = self.getTextFromNode(node)
+
+        if t != None:
+            self.currentText += (" " * self.currentDepth) + t
 
         for c in node.childNodes:
-            try:
-                tag_functions[c.tagName](c)
-                print('handled',c.tagName)
-            except:
-                try:
-                    # print('not handled:',c.tagName)\
-                    pass
-                except:
-                    self.currentSlide.text.append(c.data)
-
-                self.handleNode(c)
+            self.currentDepth = self.currentDepth + 1
+            self.handleNode(c)
+            self.currentDepth = self.currentDepth - 1
+                
 
     def handleDocument(self,dom):
         # we only need the pages
         pages = dom.getElementsByTagName("draw:page")
+        # iterate pages
         for page in pages:
             self.currentSlide = Slide()
             self.handleNode(page)
             self.slides.append(self.currentSlide)
+
+            print("text : ", self.currentText)
+            self.currentText = ""
 
         # debug
         # for slide in self.slides:
