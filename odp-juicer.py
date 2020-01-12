@@ -41,7 +41,7 @@ import xml.dom.minidom as dom
 
 class Slide:
     def __init__(self):
-        self.title = 'Unknown'
+        self.title = ''
         self.text = [[]]
         self.notes = []
         self.media = []
@@ -119,19 +119,22 @@ class ODPJuicer:
             pass
             # print("Unhandled Scope!")
 
+        if node.nodeName == 'draw:image':
+            print(node.attributes.items()['xlink:href'])
+            # self.currentSlide.media.append()
+
         t = self.getTextFromNode(node)
 
         if t != None:
             if self.currentScope == Scope.OUTLINE:
                 self.currentText += (" " * self.currentDepth) + t
             elif self.currentScope == Scope.TITLE:
-                self.currentSlide.title += self.currentText
-            
+                self.currentSlide.title += t            
 
         for c in node.childNodes:
-            self.currentDepth = self.currentDepth + 1
+            self.currentDepth += 1
             self.handleNode(c)
-            self.currentDepth = self.currentDepth - 1
+            self.currentDepth -= 1
                 
 
     def handleDocument(self,dom):
@@ -139,11 +142,15 @@ class ODPJuicer:
         pages = dom.getElementsByTagName("draw:page")
         # iterate pages
         for page in pages:
+
+            self.currentDepth = 0
             self.currentSlide = Slide()
             self.handleNode(page)
             self.slides.append(self.currentSlide)
 
+            print("title: ",self.currentSlide.title)
             print("text : ", self.currentText)
+
             self.currentText = ""
 
         # debug
