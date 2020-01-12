@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["--input","examples/simple/simple-000.odp"],
+            "args": ["--input","examples/simple/simple-001.odp"],
             "cwd": "${workspaceFolder}"
         }
     ]
