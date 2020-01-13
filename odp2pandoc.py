@@ -40,26 +40,14 @@ import xml.dom.minidom as dom
 class Slide:
     def __init__(self):
         self.title = ''
-        self.text = [[]]
-        self.notes = []
+        self.text = ""
+        self.notes = ""
         self.media = []
 
-    def generateMarkdownBody(self,d,depth):
-        out = ""
-        for v in d:
-            if isinstance(v,list):
-                out += self.generateMarkdownBody(v,depth+1)
-            else:
-                out += "\t" * depth
-                out += "- {0}\n".format(v)
-        return out
-
     def generateMarkdown(self):
-        
-        out = "## {0}\n".format(self.name)
-
-        out += self.generateMarkdownBody(self.text,0)
-        
+        out = "## {0}\n\n{1}\n".format(self.title,self.text)
+        for m in self.media:
+            out += "![]({0})\n".format(m)
         return out
 
     def __str__(self):
@@ -76,7 +64,6 @@ class Scope(Enum):
 class Parser:
     def __init__(self):
         self.slides = []
-        self.doc = None
         self.currentSlide = None
         self.currentText = ""
         self.currentDepth = 0
@@ -119,17 +106,17 @@ class Parser:
             pass
             # print("Unhandled Scope!")
 
-        if node.nodeName == 'draw:image':
+        if node.nodeName in ['draw:image', 'draw:plugin']:
             for k,v in node.attributes.items():
                 if k == 'xlink:href':
-                    print(v)
-            # self.currentSlide.media.append()
+                    self.currentSlide.media.append(v)
 
+            
         t = self.getTextFromNode(node)
 
         if t != None:
             if self.currentScope == Scope.OUTLINE:
-                self.currentText += (" " * self.currentDepth) + t
+                self.currentText += (" " * self.currentDepth) + t + "\n"
             elif self.currentScope == Scope.TITLE:
                 self.currentSlide.title += t
             elif self.currentScope == Scope.IMAGES:
@@ -150,16 +137,11 @@ class Parser:
             self.currentDepth = 0
             self.currentSlide = Slide()
             self.handleNode(page)
+            self.currentSlide.text = self.currentText
             self.slides.append(self.currentSlide)
-
-            print("title: ",self.currentSlide.title)
-            print("text : ", self.currentText)
 
             self.currentText = ""
 
-        # debug
-        # for slide in self.slides:
-        #     print(slide)
 
     def open(self,fname):
         with zipfile.ZipFile(fname) as odp:
@@ -170,6 +152,14 @@ class Parser:
                     with odp.open('content.xml') as index:
                         doc = dom.parseString(index.read())
                         self.handleDocument(doc)
+            # output markdown
+            for slide in self.slides:
+                print(slide)
+            # generate files
+            for slide in self.slides:
+                for m in slide.media:
+                    odp.extract(m,'.')
+
 
 def main():
     argument_parser = argparse.ArgumentParser(description='OpenDocument Presentation converter')
