@@ -2,9 +2,9 @@
 
 """
 
-ODP Juicer 2020.1.0
+ODP2Pandoc 2020.1.0
 
-ODP Juicer is a tiny tool to convert 
+ODP2Pandoc is a tiny tool to convert 
 OpenDocument formatted presentations (ODP) 
 to Pandocs' Markdown.
 
@@ -23,11 +23,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 Usage:
 
-$> python odp-juicer --input <myslide.odp>
+$> python odp2pandoc --input <myslide.odp>
 
  """
 
@@ -45,7 +43,6 @@ class Slide:
         self.text = [[]]
         self.notes = []
         self.media = []
-        #self.data = ['blah', ['more','blah blah']]
 
     def generateMarkdownBody(self,d,depth):
         out = ""
@@ -73,9 +70,10 @@ class Scope(Enum):
     TITLE = 1
     OUTLINE = 2
     NOTES = 3
+    IMAGES = 4
 
 
-class ODPJuicer:
+class Parser:
     def __init__(self):
         self.slides = []
         self.doc = None
@@ -115,12 +113,16 @@ class ODPJuicer:
             self.currentScope = Scope.TITLE
         elif self.hasAttributeWithValue(node,"presentation:class","outline"):
             self.currentScope = Scope.OUTLINE
+        # elif == 'draw:image':
+        #     self.currentScope = Scope.IMAGES
         else:
             pass
             # print("Unhandled Scope!")
 
         if node.nodeName == 'draw:image':
-            print(node.attributes.items()['xlink:href'])
+            for k,v in node.attributes.items():
+                if k == 'xlink:href':
+                    print(v)
             # self.currentSlide.media.append()
 
         t = self.getTextFromNode(node)
@@ -129,7 +131,9 @@ class ODPJuicer:
             if self.currentScope == Scope.OUTLINE:
                 self.currentText += (" " * self.currentDepth) + t
             elif self.currentScope == Scope.TITLE:
-                self.currentSlide.title += t            
+                self.currentSlide.title += t
+            elif self.currentScope == Scope.IMAGES:
+                print('image title ',t)     
 
         for c in node.childNodes:
             self.currentDepth += 1
@@ -167,18 +171,17 @@ class ODPJuicer:
                         doc = dom.parseString(index.read())
                         self.handleDocument(doc)
 
-
 def main():
-    parser = argparse.ArgumentParser(description='OpenDocument Presentation Parser')
-    parser.add_argument("--input", default="",
-                        help="ODP file to parse and extract")
+    argument_parser = argparse.ArgumentParser(description='OpenDocument Presentation converter')
+    argument_parser.add_argument("--input", required=True,help="ODP file to parse and extract")
 
-    args = parser.parse_args()
+    args = argument_parser.parse_args()
 
-    juicer = ODPJuicer()
-    juicer.open(args.input)
-
-
+    juicer = Parser()
+    if 'input' in args:
+        juicer.open(args.input)
+    else:
+        argument_parser.print_help()
 
 if __name__ == '__main__':
     main()
