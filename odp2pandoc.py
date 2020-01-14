@@ -116,7 +116,7 @@ class Parser:
 
         if t != None:
             if self.currentScope == Scope.OUTLINE:
-                self.currentText += (" " * self.currentDepth) + t + "\n"
+                self.currentText += (' ' * self.currentDepth) + '- ' + t + "\n"
             elif self.currentScope == Scope.TITLE:
                 self.currentSlide.title += t
             elif self.currentScope == Scope.IMAGES:
