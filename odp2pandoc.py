@@ -44,6 +44,9 @@ class Slide:
         self.notes = ""
         self.media = []
 
+    def normalizeText(self):
+        for ()
+
     def generateMarkdown(self):
         out = "## {0}\n\n{1}\n".format(self.title,self.text)
         for m in self.media:
@@ -155,7 +158,8 @@ class Parser:
             # output markdown
             for slide in self.slides:
                 print(slide)
-            # generate files
+                
+            # generate files          
             for slide in self.slides:
                 for m in slide.media:
                     odp.extract(m,'.')
