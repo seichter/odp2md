@@ -12,7 +12,7 @@ This tool tries to extract relevant data from ODP files and converts it to pando
 
 ## Copyright and Licence
 
-(c) Copyright 2019-2020 Hartmut Seichter
+&copy; Copyright 2019-2020 Hartmut Seichter
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
