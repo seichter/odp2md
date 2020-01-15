@@ -32,10 +32,9 @@ $> python odp2pandoc --input <myslide.odp>
 import os
 import zipfile
 import argparse
+import sys
 from enum import Enum
-
 import xml.dom.minidom as dom
-
 
 class Slide:
     def __init__(self):
@@ -45,9 +44,16 @@ class Slide:
         self.media = []
 
     def normalizeText(self):
-        for ()
+        min_ls = sys.maxsize
+        for line in self.text.split('\n'):
+            ls = len(line) - len(line.lstrip())
+            if ls > 0:
+                min_ls = min(ls,min_ls)
+            # print('line: ',line.strip(),' ls ',ls)
+        print('minimum leading spaces:',min_ls)
 
     def generateMarkdown(self):
+        self.normalizeText()
         out = "## {0}\n\n{1}\n".format(self.title,self.text)
         for m in self.media:
             out += "![]({0})\n".format(m)
