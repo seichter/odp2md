@@ -1,6 +1,6 @@
 # ODP2pandoc
 
-This tool tries to extract relevant data from ODP files and converts it to pandoc Markdown targeting reveal.js and Beamer. It was developed to rescue all my data which resides in huge piles of slide decks. 
+This tool extracts relevant data from ODP files and converts it to [pandoc](https://pandoc.org) Markdown targeting conversion to reveal.js and Beamer. It was developed to rescue all my lectures, which resided in huge piles of slide decks made in PowerPoint and LibreOffice. Many times I had to reboot my system just to keep going on with the lecture - this led me think of moving to a method that keeps content and presentation separate.  
 
 ## ToDo
 
@@ -10,19 +10,9 @@ This tool tries to extract relevant data from ODP files and converts it to pando
 - [ ] rename media files with a derivative of the slide title
 
 
-## Copyright and Licence
+## Copyright and License
 
-&copy; Copyright 2019-2020 Hartmut Seichter
+&copy; 2019-2020 Hartmut Seichter
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This software is licensed under the terms of the GPLv3. Please consult [LICENSE.md](LICENSE.md)
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
