@@ -63,6 +63,7 @@ class Slide:
         return self.generateMarkdown()
 
 class Scope(Enum):
+
     NONE = 0
     TITLE = 1
     OUTLINE = 2
@@ -164,7 +165,7 @@ class Parser:
             # output markdown
             for slide in self.slides:
                 print(slide)
-                
+
             # generate files          
             for slide in self.slides:
                 for m in slide.media:
