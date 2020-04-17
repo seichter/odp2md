@@ -33,6 +33,8 @@ import os
 import zipfile
 import argparse
 import sys
+import re, unicodedata
+import textwrap
 from enum import Enum
 import xml.dom.minidom as dom
 
@@ -43,22 +45,15 @@ class Slide:
         self.notes = ""
         self.media = []
 
-    def normalizeText(self):
-        min_ls = sys.maxsize
-        for line in self.text.split('\n'):
-            ls = len(line) - len(line.lstrip())
-            if ls > 0:
-                min_ls = min(ls,min_ls)
-            # print('line: ',line.strip(),' ls ',ls)
-        print('minimum leading spaces:',min_ls)
-
     def generateMarkdown(self):
-        self.normalizeText()
+        # fix identation
+        self.text = textwrap.dedent(self.text)
         out = "## {0}\n\n{1}\n".format(self.title,self.text)
-        for m in self.media:
-            out += "![]({0})\n".format(m)
+        for m,v in self.media:
+            out += "![]({0})\n".format(v)
         return out
-
+    
+    # override string representation
     def __str__(self):
         return self.generateMarkdown()
 
@@ -72,12 +67,14 @@ class Scope(Enum):
 
 
 class Parser:
+
     def __init__(self):
         self.slides = []
         self.currentSlide = None
         self.currentText = ""
         self.currentDepth = 0
         self.currentScope = Scope.NONE
+        self.mediaDirectory = 'media'
 
     def getTextFromNode(self,node):
         if node.nodeType == node.TEXT_NODE and len(str(node.data)) > 0:
@@ -104,6 +101,21 @@ class Parser:
         # store
         self.slides.append(self.currentSlide)
 
+
+    def slugify(self,value, allow_unicode=False):
+        """
+        Convert to ASCII if 'allow_unicode' is False. Convert spaces to hyphens.
+        Remove characters that aren't alphanumerics, underscores, or hyphens.
+        Convert to lowercase. Also strip leading and trailing whitespace.
+        """
+        value = str(value)
+        if allow_unicode:
+            value = unicodedata.normalize('NFKC', value)
+        else:
+            value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+        value = re.sub(r'[^\w\s-]', '', value.lower()).strip()
+        return re.sub(r'[-\s]+', '-', value)
+
     def handleNode(self,node):
 
         if self.hasAttributeWithValue(node,"presentation:class","title"):
@@ -119,7 +131,16 @@ class Parser:
         if node.nodeName in ['draw:image', 'draw:plugin']:
             for k,v in node.attributes.items():
                 if k == 'xlink:href':
-                    self.currentSlide.media.append(v)
+                    # get the extension
+                    name,ext = os.path.splitext(v)
+                    ext = ext.lower()
+                    # now we create a new slug name for conversion
+                    slug = self.slugify(self.currentSlide.title)
+                    if len(slug) < 1:
+                        slug = "slide-" + str(len(self.slides)) + "-image"
+                    slug += "-" + str(len(self.currentSlide.media))
+                    print(self.mediaDirectory)
+                    self.currentSlide.media.append((v,os.path.join(self.mediaDirectory,slug+ext)))
 
             
         t = self.getTextFromNode(node)
@@ -130,7 +151,7 @@ class Parser:
             elif self.currentScope == Scope.TITLE:
                 self.currentSlide.title += t
             elif self.currentScope == Scope.IMAGES:
-                print('image title ',t)     
+                print('image title ',t)
 
         for c in node.childNodes:
             self.currentDepth += 1
@@ -153,7 +174,8 @@ class Parser:
             self.currentText = ""
 
 
-    def open(self,fname):
+    def open(self,fname,mediaDir='media'):
+        self.mediaDirectory = mediaDir
         with zipfile.ZipFile(fname) as odp:
             info = odp.infolist()
             for i in info:
@@ -168,21 +190,27 @@ class Parser:
 
             # generate files          
             for slide in self.slides:
-                for m in slide.media:
+                for m,v in slide.media:
                     odp.extract(m,'.')
+                    if not os.path.exists(self.mediaDirectory):
+                        os.makedirs(self.mediaDirectory)
+                    os.rename(os.path.join('.',m),v)
+
 
 
 def main():
     argument_parser = argparse.ArgumentParser(description='OpenDocument Presentation converter')
     argument_parser.add_argument("--input", required=True,help="ODP file to parse and extract")
+    argument_parser.add_argument("--mediadir", required=False,default='media',help="output directory for linked media")
 
     args = argument_parser.parse_args()
 
     juicer = Parser()
     if 'input' in args:
-        juicer.open(args.input)
+        juicer.open(args.input,args.mediadir)
     else:
         argument_parser.print_help()
+        return
 
 if __name__ == '__main__':
     main()
