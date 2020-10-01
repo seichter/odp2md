@@ -2,7 +2,7 @@
 
 """
 
-ODP2Pandoc 2020.1.0
+odp2md 2020.9.0
 
 ODP2Pandoc is a tiny tool to convert 
 OpenDocument formatted presentations (ODP) 
@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 Usage:
 
-$> python odp2pandoc --input <myslide.odp>
+$> python odp2md --input <myslide.odp>
 
  """
 
@@ -90,7 +90,8 @@ class Parser:
         return False
 
     def debugNode(self,node):
-        print('node ', node.tagName)
+        # print('node ', node.tagName)
+        pass
 
     def handlePage(self,node):
         # set new current slide
@@ -122,11 +123,6 @@ class Parser:
             self.currentScope = Scope.TITLE
         elif self.hasAttributeWithValue(node,"presentation:class","outline"):
             self.currentScope = Scope.OUTLINE
-        # elif == 'draw:image':
-        #     self.currentScope = Scope.IMAGES
-        else:
-            pass
-            # print("Unhandled Scope!")
 
         if node.nodeName in ['draw:image', 'draw:plugin']:
             for k,v in node.attributes.items():
@@ -139,7 +135,6 @@ class Parser:
                     if len(slug) < 1:
                         slug = "slide-" + str(len(self.slides)) + "-image"
                     slug += "-" + str(len(self.currentSlide.media))
-                    print(self.mediaDirectory)
                     self.currentSlide.media.append((v,os.path.join(self.mediaDirectory,slug+ext)))
 
             
@@ -151,7 +146,8 @@ class Parser:
             elif self.currentScope == Scope.TITLE:
                 self.currentSlide.title += t
             elif self.currentScope == Scope.IMAGES:
-                print('image title ',t)
+                pass
+                # print('image title ',t)
 
         for c in node.childNodes:
             self.currentDepth += 1
@@ -174,40 +170,52 @@ class Parser:
             self.currentText = ""
 
 
-    def open(self,fname,mediaDir='media'):
+    def open(self,fname,mediaDir='media',markdown = False,mediaExtraction = False):
+        
         self.mediaDirectory = mediaDir
+
+        # open odp file
         with zipfile.ZipFile(fname) as odp:
             info = odp.infolist()
             for i in info:
-                # print(i)
                 if (i.filename == 'content.xml'):
                     with odp.open('content.xml') as index:
                         doc = dom.parseString(index.read())
                         self.handleDocument(doc)
-            # output markdown
-            for slide in self.slides:
-                print(slide)
 
-            # generate files          
-            for slide in self.slides:
-                for m,v in slide.media:
-                    odp.extract(m,'.')
-                    if not os.path.exists(self.mediaDirectory):
-                        os.makedirs(self.mediaDirectory)
-                    os.rename(os.path.join('.',m),v)
+        
+            # output markdown
+            if markdown == True:
+                for slide in self.slides:
+                        print(slide)
+
+            # generate files
+            if mediaExtraction == True:           
+                for slide in self.slides:
+                    for m,v in slide.media:
+                        odp.extract(m,'.')
+                        if not os.path.exists(self.mediaDirectory):
+                            os.makedirs(self.mediaDirectory)
+                        os.rename(os.path.join('.',m),v)
 
 
 
 def main():
     argument_parser = argparse.ArgumentParser(description='OpenDocument Presentation converter')
-    argument_parser.add_argument("--input", required=True,help="ODP file to parse and extract")
+    
+    argument_parser.add_argument("-i","--input", required=True,help="ODP file to parse and extract")
+    argument_parser.add_argument("-m","--markdown", help="generate Markdown files", action='store_true')
+    argument_parser.add_argument("-x","--extract", help="extract media files", action='store_true')
     argument_parser.add_argument("--mediadir", required=False,default='media',help="output directory for linked media")
-
+    
     args = argument_parser.parse_args()
+
+    # print(args)
+    # return
 
     juicer = Parser()
     if 'input' in args:
-        juicer.open(args.input,args.mediadir)
+        juicer.open(args.input,args.mediadir,args.markdown,args.extract)
     else:
         argument_parser.print_help()
         return
