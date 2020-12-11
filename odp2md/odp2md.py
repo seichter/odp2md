@@ -193,10 +193,17 @@ class Parser:
             if mediaExtraction == True:           
                 for slide in self.slides:
                     for m,v in slide.media:
-                        odp.extract(m,'.')
-                        if not os.path.exists(self.mediaDirectory):
-                            os.makedirs(self.mediaDirectory)
-                        os.rename(os.path.join('.',m),v)
+                        try:
+                            odp.extract(m,'.')
+                            if not os.path.exists(self.mediaDirectory):
+                                os.makedirs(self.mediaDirectory)
+                            v = textwrap.shorten(v,80)
+                            os.rename(os.path.join('.',m),v)
+                        except KeyError:
+                            print("Unkown key ",m)
+                        except:
+                            print("Unexpected error:", sys.exc_info()[0])
+                        
 
 
 
