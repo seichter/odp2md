@@ -2,13 +2,13 @@
 
 """
 
-odp2md 2020.9.0
+odp2md 2021.5.0
 
 ODP2Pandoc is a tiny tool to convert 
 OpenDocument formatted presentations (ODP) 
 to Pandocs' Markdown.
 
-(c) Copyright 2019-2020 Hartmut Seichter
+(c) Copyright 2019-2021 Hartmut Seichter
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -193,10 +193,14 @@ class Parser:
             if mediaExtraction == True:           
                 for slide in self.slides:
                     for m,v in slide.media:
-                        odp.extract(m,'.')
-                        if not os.path.exists(self.mediaDirectory):
-                            os.makedirs(self.mediaDirectory)
-                        os.rename(os.path.join('.',m),v)
+                        try:
+                            odp.extract(m,'.')
+                            if not os.path.exists(self.mediaDirectory):
+                                os.makedirs(self.mediaDirectory)
+                            os.rename(os.path.join('.',m),v)
+                        except KeyError:
+                            print("error finding media file ",m)
+                        
 
 
 
