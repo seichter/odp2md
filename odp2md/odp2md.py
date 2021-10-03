@@ -45,12 +45,20 @@ class Slide:
         self.notes = ""
         self.media = []
 
-    def generateMarkdown(self):
+    def generateMarkdown(self,blockToHTML=True):
         # fix identation
         self.text = textwrap.dedent(self.text)
         out = "## {0}\n\n{1}\n".format(self.title,self.text)
         for m,v in self.media:
-            out += "![]({0})\n".format(v)
+
+            # maybe let everything else fail?
+            isVideo = any(x in v for x in ['.mp4','.mkv'])
+
+            if blockToHTML and isVideo:
+                # since LaTeX extensions for video are deprecated 
+                out += "`![]({0})`{{=html}}\n".format(v)
+            else:
+                out += "![]({0})\n".format(v)
         return out
     
     # override string representation
@@ -209,6 +217,7 @@ def main():
     
     argument_parser.add_argument("-i","--input", required=True,help="ODP file to parse and extract")
     argument_parser.add_argument("-m","--markdown", help="generate Markdown files", action='store_true')
+    argument_parser.add_argument("-b","--blocks", help="generate pandoc blocks for video files", action='store_true')
     argument_parser.add_argument("-x","--extract", help="extract media files", action='store_true')
     argument_parser.add_argument("--mediadir", required=False,default='media',help="output directory for linked media")
     
