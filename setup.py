@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name = 'odp2md',
-    version = '0.3.1',
+    version = '0.3.2',
     description = "convert OpenOffice odp to markdown",
     long_description = long_description,
     long_description_content_type="text/markdown",
