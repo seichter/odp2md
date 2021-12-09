@@ -10,6 +10,12 @@
 pip install .
 ```
 
+## From PyPi
+
+```
+pip install odp2md
+```
+
 
 ## ToDo
 
