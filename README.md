@@ -1,7 +1,6 @@
 # odp2md
 
-This tool extracts relevant data from ODP files and converts it to [pandoc](https://pandoc.org) Markdown targeting conversion to [reveal.js](https://revealjs.com) and [Beamer](https://ctan.org/pkg/beamer). It was developed to rescue my lecture notes and slide decks, which resided in huge piles of documents made in PowerPoint and LibreOffice. During lectures many times I had to reboot my system just to keep going on with the lecture - this led me think of moving to a method that keeps content and presentation separate.  
-
+**odp2md** extracts presentation data from ODP files and converts it to [pandoc](https://pandoc.org) markdown. This allows conversion to [reveal.js](https://revealjs.com) and [Beamer](https://ctan.org/pkg/beamer). It was developed to rescue my lecture notes and slide decks, which resided in huge piles of documents made in PowerPoint and LibreOffice.
 
 # Install
 
@@ -10,7 +9,6 @@ This tool extracts relevant data from ODP files and converts it to [pandoc](http
 ```
 pip install .
 ```
-
 
 
 ## ToDo
@@ -23,7 +21,7 @@ pip install .
 
 ## Copyright and License
 
-&copy; 2019-2020 Hartmut Seichter
+&copy; 2019-2021 Hartmut Seichter
 
 This software is licensed under the terms of the GPLv3. Please consult [LICENSE.md](LICENSE.md)
 
