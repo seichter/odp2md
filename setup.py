@@ -5,10 +5,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name = 'odp2md',
-    version = '0.3.2',
+    version = '0.3.3',
     description = "convert OpenOffice odp to markdown",
     long_description = long_description,
     long_description_content_type="text/markdown",
+    entry_points={'console_scripts': ['odp2md = odp2md.__main__:main']},
     url = "https://github.com/seichter/odp2md",
     author = "Hartmut Seichter",
     author_email = "hartmut@technotecture.com",
@@ -18,6 +19,5 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent"
     ],
-    python_requires='>=3.6',
-    scripts=['bin/odp2md']
+    python_requires='>=3.6'
 )
