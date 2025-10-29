@@ -3,9 +3,9 @@ import textwrap
 
 class Slide:
     def __init__(self):
-        self.title = ""
-        self.text = ""
-        self.notes = ""
+        self.title: str = ""
+        self.text: str = ""
+        self.notes: str = ""
         self.media = []
 
     def generateMarkdown(self, blockToHTML=True):

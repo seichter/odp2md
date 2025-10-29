@@ -39,14 +39,21 @@ class App:
 
     def run(self):
         argument_parser = argparse.ArgumentParser(
-            description="OpenDocument Presentation converter"
+            prog="odp2md",
+            description="OpenDocument presentation to markdown converter",
         )
 
         argument_parser.add_argument(
-            "-i", "--input", required=True, help="ODP file to parse and extract"
+            "-i",
+            "--input",
+            required=True,
+            help="ODP file to parse and extract",
         )
         argument_parser.add_argument(
-            "-m", "--markdown", help="generate Markdown files", action="store_true"
+            "-m",
+            "--markdown",
+            help="generate Markdown files",
+            action="store_true",
         )
         argument_parser.add_argument(
             "-b",
@@ -55,7 +62,10 @@ class App:
             action="store_true",
         )
         argument_parser.add_argument(
-            "-x", "--extract", help="extract media files", action="store_true"
+            "-x",
+            "--extract",
+            help="extract media files",
+            action="store_true",
         )
         argument_parser.add_argument(
             "--mediadir",
@@ -66,10 +76,10 @@ class App:
 
         args = argument_parser.parse_args()
 
-        juicer = Parser()
+        parser = Parser()
 
         if "input" in args:
-            juicer.open(args.input, args.mediadir, args.markdown, args.extract)
+            parser.open(args.input, args.mediadir, args.markdown, args.extract)
         else:
             argument_parser.print_help()
 
