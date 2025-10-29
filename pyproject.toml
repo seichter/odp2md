@@ -4,3 +4,10 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[project.scripts]
+greet = "odp2md.odp2md:app"
+
+
+[project.entry-points."pipx.run"]
+greetings = "odp2md.odp2md:app"
