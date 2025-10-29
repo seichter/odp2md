@@ -1,13 +1,26 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "odp2md"
+version = "0.3.5"
+authors = [
+  { name="Hartmut Seichter", email="hartmut@technotecture.com" },
 ]
-build-backend = "setuptools.build_meta"
+description = "convert LibreOffice presentations odp files to markdown"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "GPL-3.0-or-later"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/seichter/odp2md"
+Issues = "https://github.com/seichter/odp2md/issues"
 
 [project.scripts]
-greet = "odp2md.odp2md:app"
+odp2md = "odp2md:main"
 
-
-[project.entry-points."pipx.run"]
-greetings = "odp2md.odp2md:app"
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

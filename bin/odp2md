@@ -1,6 +1,0 @@
-#!/usr/bin/env python
-
-import odp2md
-
-if __name__ == '__main__':
-    odp2md.main()
