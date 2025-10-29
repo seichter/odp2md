@@ -9,7 +9,7 @@ if not __package__:
 
 
 def main():
-    from .odp2md import main_cli
+    from app import main_cli
 
     main_cli()
 

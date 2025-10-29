@@ -15,11 +15,11 @@ license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
 
 [project.urls]
-Homepage = "https://github.com/seichter/odp2md"
+Homepage = "https://technotecture.com/project/odp2md/"
 Issues = "https://github.com/seichter/odp2md/issues"
 
 [project.scripts]
-odp2md = "odp2md:main"
+odp2md = "odp2md.app:main_cli"
 
 [build-system]
 requires = ["setuptools>=61.0"]

@@ -27,7 +27,6 @@ pip install odp2md
 
 ## Copyright and License
 
-&copy; 2019-2021 Hartmut Seichter
+&copy; 2019-2025 Hartmut Seichter
 
 This software is licensed under the terms of the GPLv3. Please consult [LICENSE.md](LICENSE.md)
-

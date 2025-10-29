@@ -30,7 +30,7 @@ $> python odp2md --input <myslide.odp>
 
 import os, sys, argparse
 
-from parser import Parser
+from odp2md.parser import Parser
 
 
 class App:

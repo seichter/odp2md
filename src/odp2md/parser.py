@@ -4,8 +4,8 @@ import os
 import zipfile
 
 
-from scope import Scope
-from slide import Slide
+from odp2md.scope import Scope
+from odp2md.slide import Slide
 
 
 class Parser:

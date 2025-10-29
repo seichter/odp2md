@@ -7,9 +7,9 @@ build: upgrade-build
 upgrade-build:
 	python -m pip install --upgrade build
 
-staging: clean
+staging: clean build
 	python -m pip install .
 
 
 clean:
-	python -m pip uninstall odp2md
+	yes | python -m pip uninstall odp2md
